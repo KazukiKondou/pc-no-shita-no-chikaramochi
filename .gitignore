@@ -12,6 +12,14 @@ build/
 ## macOS
 .DS_Store
 
+## .NET / Visual Studio (Windows/)
+Windows/bin/
+Windows/obj/
+Windows/publish/
+*.user
+*.suo
+.vs/
+
 ## エディタ
 .claude/
 .vscode/

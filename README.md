@@ -1,7 +1,11 @@
 # PCの下の力持ち
 
-メモリ使用率に応じて、メニューバーの中で重量挙げをする小さなキャラクターです。  
-あなたのPCを陰で支えてくれます。
+メモリ使用率に応じて、メニューバー (macOS) / タスクバー (Windows) の中で重量挙げを
+する小さなキャラクターです。あなたのPCを陰で支えてくれます。
+
+**対応OS:**
+- macOS 13+ (`Sources/` 配下、Swift + SwiftUI)
+- Windows 10/11 (`Windows/` 配下、C# / .NET 8 / WinForms)
 
 | メモリ使用率 | 状態 | アニメ |
 | --- | --- | --- |
@@ -96,12 +100,47 @@ launchctl load ~/Library/LaunchAgents/com.kondo.pc-no-shita-no-chikaramochi.plis
 launchctl unload ~/Library/LaunchAgents/com.kondo.pc-no-shita-no-chikaramochi.plist
 ```
 
+## Windows 版の使い方
+
+### 配布済みビルドを使う (推奨)
+
+ソースから自分でビルドする必要はありません。
+
+1. [GitHub Actions](https://github.com/KazukiKondou/pc-no-shita-no-chikaramochi/actions/workflows/build-windows.yml)
+   の最新の成功したワークフローを開く
+2. ページ下部の Artifacts セクションから `PCNoShitaNoChikaramochi-Windows` をダウンロード
+3. ZIP を展開
+4. `PCNoShitaNoChikaramochi.exe` をダブルクリックで起動
+
+初回は Windows SmartScreen が「Windows によって PC が保護されました」と警告するので、
+「詳細情報」→「実行」 をクリック。
+
+### 自分でビルドする
+
+Windows + [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) が必要:
+
+```cmd
+git clone https://github.com/KazukiKondou/pc-no-shita-no-chikaramochi.git
+cd pc-no-shita-no-chikaramochi
+dotnet publish Windows/PCNoShitaNoChikaramochi.csproj -c Release -o publish
+```
+
+`publish/PCNoShitaNoChikaramochi.exe` ができる。
+
 ## 仕組み
 
+### macOS 版
 - メモリ使用率は `host_statistics64(HOST_VM_INFO64)` で取得 (active + wire + compressor / total)
 - キャラはすべて SwiftUI の `Canvas` でベクター描画 (画像アセットなし)
 - メニューバー埋め込みは `NSStatusItem.button` に `NSHostingView` を subview として追加
 - アニメーションは 30fps の Timer で三角波 (0→1→0) を生成
+
+### Windows 版
+- メモリ使用率は `GlobalMemoryStatusEx` を P/Invoke で呼び出して取得
+- キャラは GDI+ (`System.Drawing.Graphics`) で同じロジックを移植
+- トレイアイコンは毎フレーム `Bitmap → HICON → Icon` で更新 (`NotifyIcon.Icon`)
+- 設定は `%APPDATA%\PCNoShitaNoChikaramochi\appearance.json` に JSON で永続化
+- 単一ファイルの自己完結 .exe (~50MB) なので .NET 不要
 
 ## ライセンス
 

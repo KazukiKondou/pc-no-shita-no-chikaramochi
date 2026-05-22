@@ -1,0 +1,104 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Windows/**'
+      - '.github/workflows/build-windows.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore Windows/PCNoShitaNoChikaramochi.csproj
+
+      - name: Publish (self-contained single file)
+        run: |
+          dotnet publish Windows/PCNoShitaNoChikaramochi.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=embedded `
+            -o publish
+
+      - name: Create README inside ZIP
+        shell: pwsh
+        run: |
+          $readme = @"
+          PCの下の力持ち (Windows版)
+          ==========================
+
+          メモリ使用率に応じて、タスクバーの中で重量挙げをする小さな
+          キャラクターです。
+
+          ## 起動方法
+
+          1. PCNoShitaNoChikaramochi.exe をダブルクリック
+          2. 「Windows によって PC が保護されました」と SmartScreen の
+             警告が出た場合:
+                 → 「詳細情報」をクリック → 「実行」をクリック
+             (この警告はコード署名証明書を購入していないので必ず出ます)
+          3. タスクバー右側の通知領域に小さな重量挙げ選手が表示されます
+
+          ## 操作方法
+
+          - **設定変更**: タスクバーのキャラを **右クリック → 「設定...」**
+              (キャラを **左クリック** でも設定が開きます)
+          - **終了**: 右クリック → 「終了」
+
+          ## ログイン時に自動起動したい
+
+          1. キーボードで Win + R を押す
+          2. 「shell:startup」と入力 → Enter
+          3. 開いた "スタートアップ" フォルダに、
+             PCNoShitaNoChikaramochi.exe のショートカットを作って入れる
+
+          ## 設定の保存場所
+
+          %APPDATA%\PCNoShitaNoChikaramochi\appearance.json
+
+          ## ソースコード / ライセンス
+
+          MIT License
+          https://github.com/KazukiKondou/pc-no-shita-no-chikaramochi
+          "@
+          $utf8Bom = New-Object System.Text.UTF8Encoding $true
+          [System.IO.File]::WriteAllText("publish/README.txt", $readme, $utf8Bom)
+
+      - name: Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path publish/PCNoShitaNoChikaramochi.exe, publish/README.txt `
+            -DestinationPath PCNoShitaNoChikaramochi-Windows.zip `
+            -Force
+
+      - name: Show ZIP contents
+        shell: pwsh
+        run: |
+          $size = (Get-Item PCNoShitaNoChikaramochi-Windows.zip).Length
+          Write-Host "ZIP size: $($size / 1MB) MB"
+          Expand-Archive -Path PCNoShitaNoChikaramochi-Windows.zip -DestinationPath verify -Force
+          Get-ChildItem -Recurse verify
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PCNoShitaNoChikaramochi-Windows
+          path: PCNoShitaNoChikaramochi-Windows.zip
+          retention-days: 90
