@@ -1,0 +1,19 @@
+## Swift / SPM
+.build/
+.swiftpm/
+Package.resolved
+*.xcodeproj
+DerivedData/
+
+## ビルド成果物
+build/
+*.app
+
+## macOS
+.DS_Store
+
+## エディタ
+.claude/
+.vscode/
+.idea/
+*.swp
