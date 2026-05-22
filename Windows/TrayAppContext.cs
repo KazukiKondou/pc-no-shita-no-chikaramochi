@@ -13,8 +13,8 @@ public class TrayAppContext : ApplicationContext
     private readonly AppearanceStore _appearance = AppearanceStore.Load();
     private SettingsForm? _settingsForm;
 
-    private readonly Timer _renderTimer = new() { Interval = 66 };  // ~15 fps
-    private readonly Timer _sampleTimer = new() { Interval = 1000 };
+    private readonly System.Windows.Forms.Timer _renderTimer = new() { Interval = 66 };  // ~15 fps
+    private readonly System.Windows.Forms.Timer _sampleTimer = new() { Interval = 1000 };
 
     private ToolStripMenuItem? _usageItem;
     private ToolStripMenuItem? _stateItem;

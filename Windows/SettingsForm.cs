@@ -14,7 +14,7 @@ public class SettingsForm : Form
     private readonly PictureBox _preview = new();
     private readonly Label _stateLabel = new();
     private readonly Label _memLabel = new();
-    private readonly Timer _renderTimer = new();
+    private readonly System.Windows.Forms.Timer _renderTimer = new();
 
     private readonly List<RadioButton> _genderRadios = new();
     private readonly List<SwatchButton> _skinSwatches = new();

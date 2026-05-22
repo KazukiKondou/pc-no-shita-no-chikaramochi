@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace PCNoShitaNoChikaramochi;
 
@@ -14,7 +13,7 @@ public class AppearanceStore
     public SkinTone SkinTone { get; set; } = SkinTone.Light;
     public ShirtColor ShirtColor { get; set; } = ShirtColor.Red;
 
-    [JsonIgnore]
+    // 設定変更通知 (JSON シリアライズ対象ではない)
     public event EventHandler? Changed;
 
     public AppearanceSnapshot Snapshot() => new(Gender, SkinTone, ShirtColor);
