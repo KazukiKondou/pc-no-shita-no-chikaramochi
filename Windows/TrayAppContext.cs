@@ -97,7 +97,7 @@ public class TrayAppContext : ApplicationContext
 
         var settings = new ToolStripMenuItem("設定...", null, (_, _) => OpenSettings())
         {
-            ShortcutKeys = Keys.Control | Keys.OemComma,
+            ShortcutKeys = Keys.Control | Keys.Oemcomma,
             ShowShortcutKeys = true
         };
         menu.Items.Add(settings);

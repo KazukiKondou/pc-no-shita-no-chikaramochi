@@ -36,13 +36,14 @@ public static class CharacterRenderer
         private readonly double _phase;
         private readonly AppearanceSnapshot _app;
 
-        private Color ShirtColor => AppearanceColors.Shirt(_app.ShirtColor);
-        private Color SkinColor => AppearanceColors.Skin(_app.SkinTone);
-        private Color SkinShade => AppearanceColors.SkinShade(_app.SkinTone);
-        private Color HairColor => AppearanceColors.Hair;
-        private Color ShortsColor => AppearanceColors.Shorts;
-        private Color BarColor => AppearanceColors.Bar;
-        private Color PlateColor => AppearanceColors.Plate(_state);
+        // 注: ShirtFill は enum 名と衝突するので、プロパティ名は別にしている
+        private Color ShirtFill => AppearanceColors.Shirt(_app.ShirtColor);
+        private Color SkinFill => AppearanceColors.Skin(_app.SkinTone);
+        private Color SkinShadeFill => AppearanceColors.SkinShadeFill(_app.SkinTone);
+        private Color HairFill => AppearanceColors.Hair;
+        private Color ShortsFill => AppearanceColors.Shorts;
+        private Color BarFill => AppearanceColors.Bar;
+        private Color PlateFill => AppearanceColors.Plate(_state);
 
         public Painter(Graphics g, int pixelSize, CharacterState state, double phase, AppearanceSnapshot app)
         {
@@ -95,8 +96,8 @@ public static class CharacterRenderer
             const double legW = 8.0;
             var legTop = 18.0 + leanY;
             var legBot = 42.0 + leanY;
-            FillRoundedRect(R(-8, legTop, legW, legBot - legTop), 3, ShortsColor);
-            FillRoundedRect(R(8 - legW, legTop, legW, legBot - legTop), 3, ShortsColor);
+            FillRoundedRect(R(-8, legTop, legW, legBot - legTop), 3, ShortsFill);
+            FillRoundedRect(R(8 - legW, legTop, legW, legBot - legTop), 3, ShortsFill);
 
             // ---- 胴体 (男性=矩形、女性=A-lineドレス) ----
             var torsoTop = -8.0 + leanY;
@@ -123,7 +124,7 @@ public static class CharacterRenderer
                 AddRoundedRect(torsoPath, R(-14, torsoTop, 28, torsoBot - torsoTop), 4);
             }
 
-            using (var brush = new SolidBrush(ShirtColor))
+            using (var brush = new SolidBrush(ShirtFill))
             {
                 _g.FillPath(brush, torsoPath);
             }
@@ -134,7 +135,7 @@ public static class CharacterRenderer
             }
 
             // ---- 首 ----
-            FillRect(R(-3, -12 + leanY, 6, 5), SkinShade);
+            FillRect(R(-3, -12 + leanY, 6, 5), SkinShadeFill);
 
             // ---- 頭 ----
             var headCY = -22.0 + leanY;
@@ -150,10 +151,10 @@ public static class CharacterRenderer
                           .LineTo(P(-9, 4 + leanY))
                           .QuadTo(P(-10, headCY), P(-15, headCY + 18))
                           .Close());
-                FillPath(hairBack, HairColor);
+                FillPath(hairBack, HairFill);
             }
 
-            FillEllipse(R(-10, headCY - 10, 20, 20), SkinColor);
+            FillEllipse(R(-10, headCY - 10, 20, 20), SkinFill);
 
             // 前髪
             if (_app.Gender == Gender.Female)
@@ -167,7 +168,7 @@ public static class CharacterRenderer
                           .QuadTo(P(-1, headCY - 4), P(0, headCY - 1))
                           .QuadTo(P(-7, headCY), P(-4, headCY - 4))
                           .Close());
-                FillPath(bangs, HairColor);
+                FillPath(bangs, HairFill);
             }
             else
             {
@@ -178,7 +179,7 @@ public static class CharacterRenderer
                           .LineTo(P(8, headCY - 2))
                           .QuadTo(P(-8, headCY - 2), P(0, headCY - 6))
                           .Close());
-                FillPath(hair, HairColor);
+                FillPath(hair, HairFill);
             }
 
             // ---- 顔 ----
@@ -197,8 +198,8 @@ public static class CharacterRenderer
             var rightHand = P(handXSpread, handY);
 
             var armWidth = S(5.5);
-            DrawLine(leftShoulder, leftHand, SkinColor, armWidth, true);
-            DrawLine(rightShoulder, rightHand, SkinColor, armWidth, true);
+            DrawLine(leftShoulder, leftHand, SkinFill, armWidth, true);
+            DrawLine(rightShoulder, rightHand, SkinFill, armWidth, true);
 
             // ---- ウェイト ----
             if (_state.Lift() == LiftKind.Dumbbell)
@@ -225,10 +226,10 @@ public static class CharacterRenderer
             DrawLine(P(-45, 38), P(45, 38), Color.FromArgb(102, Color.Gray), S(1.5), false);
 
             // 横たわった脚
-            FillRoundedRect(R(-22, 28, 30, 8), 4, ShortsColor);
+            FillRoundedRect(R(-22, 28, 30, 8), 4, ShortsFill);
 
             // 胴体
-            FillRoundedRect(R(-6, 16, 28, 12), 4, ShirtColor);
+            FillRoundedRect(R(-6, 16, 28, 12), 4, ShirtFill);
 
             // 女性: 床に広がる長い髪 (頭の左側)
             if (_app.Gender == Gender.Female)
@@ -240,11 +241,11 @@ public static class CharacterRenderer
                           .QuadTo(P(2, 27), P(-4, 22))
                           .LineTo(P(22, 27))
                           .Close());
-                FillPath(hairBack, HairColor);
+                FillPath(hairBack, HairFill);
             }
 
             // 頭 (右側)
-            FillEllipse(R(17, 13, 18, 18), SkinColor);
+            FillEllipse(R(17, 13, 18, 18), SkinFill);
 
             // 髪 (頭頂)
             using (var hair = new GraphicsPath())
@@ -254,7 +255,7 @@ public static class CharacterRenderer
                     pb => pb.QuadTo(P(34, 23), P(38, 17))
                           .LineTo(P(30, 22))
                           .Close());
-                FillPath(hair, HairColor);
+                FillPath(hair, HairFill);
             }
 
             // X目
@@ -270,7 +271,7 @@ public static class CharacterRenderer
             FillRoundedRect(R(23, 25, 4, 3), 1.5, Color.FromArgb(242, 115, 140));
 
             // バーベル
-            DrawLine(P(-45, 8), P(45, 8), BarColor, S(4.5), true);
+            DrawLine(P(-45, 8), P(45, 8), BarFill, S(4.5), true);
 
             DrawPlate(-42, 8, 12, 32);
             DrawPlate(30, 8, 12, 32);
@@ -399,14 +400,14 @@ public static class CharacterRenderer
         {
             var handleW = S(12.0);
             var handleH = S(2.5);
-            FillRoundedRect(new RectangleF(hand.X - handleW / 2, hand.Y - handleH / 2, handleW, handleH), 1, BarColor, isPixel: true);
+            FillRoundedRect(new RectangleF(hand.X - handleW / 2, hand.Y - handleH / 2, handleW, handleH), 1, BarFill, isPixel: true);
 
             foreach (var off in new[] { -7.0f, 7.0f })
             {
                 var wW = S(4.0);
                 var wH = S(8.0);
                 var rect = new RectangleF(hand.X + S(off) - wW / 2, hand.Y - wH / 2, wW, wH);
-                FillRoundedRect(rect, 1.2, PlateColor, isPixel: true);
+                FillRoundedRect(rect, 1.2, PlateFill, isPixel: true);
             }
         }
 
@@ -421,7 +422,7 @@ public static class CharacterRenderer
             var barLeft = new PointF(leftHand.X - ux * extend, leftHand.Y - uy * extend);
             var barRight = new PointF(rightHand.X + ux * extend, rightHand.Y + uy * extend);
 
-            DrawLine(barLeft, barRight, BarColor, S(3.5), true);
+            DrawLine(barLeft, barRight, BarFill, S(3.5), true);
 
             double plateW = 5.5;
             double plateH = strain ? 22.0 : 18.0;
@@ -440,14 +441,14 @@ public static class CharacterRenderer
             var pw = S(w);
             var ph = S(h);
             var rect = new RectangleF(center.X - pw / 2, center.Y - ph / 2, pw, ph);
-            using (var brush = new SolidBrush(PlateColor)) _g.FillEllipse(brush, rect);
+            using (var brush = new SolidBrush(PlateFill)) _g.FillEllipse(brush, rect);
             using (var pen = new Pen(Color.FromArgb(102, Color.Black), S(0.6))) _g.DrawEllipse(pen, rect);
         }
 
         private void DrawPlate(double x, double y, double w, double h)
         {
             var rect = R(x - w / 2, y - h / 2, w, h);
-            using (var brush = new SolidBrush(PlateColor)) _g.FillEllipse(brush, rect);
+            using (var brush = new SolidBrush(PlateFill)) _g.FillEllipse(brush, rect);
             using (var pen = new Pen(Color.FromArgb(102, Color.Black), 0.6f)) _g.DrawEllipse(pen, rect);
         }
 
