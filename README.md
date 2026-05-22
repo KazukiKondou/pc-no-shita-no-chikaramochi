@@ -14,8 +14,21 @@
 
 ## 動作環境
 
-- macOS 13 以降 (Apple Silicon 推奨)
-- Swift 5.9 以降 (Xcode に同梱)
+- macOS 13 (Ventura) 以降
+- Apple Silicon / Intel どちらも可
+- Xcode Command Line Tools (Xcode 本体は不要)
+
+Command Line Tools が入っていない場合:
+
+```bash
+xcode-select --install
+```
+
+確認:
+
+```bash
+swift --version   # Apple Swift version 5.9 以上が出れば OK
+```
 
 ## インストール
 
@@ -27,13 +40,25 @@ cd pc-no-shita-no-chikaramochi
 
 `build-app.sh` がやること:
 
-1. `swift build -c release` でビルド
+1. `swift build -c release` でビルド (実機アーキテクチャを自動検出)
 2. `PCの下の力持ち.app` を組み立て
-3. ad-hoc 署名 (`codesign --sign -`) で Gatekeeper を通す
+3. ad-hoc 署名 (`codesign --sign -`) を付与
 4. `~/Applications/PCの下の力持ち.app` にコピー
-5. Spotlight インデックスを更新
+5. `xattr -dr com.apple.quarantine` で隔離属性を解除
+6. Spotlight インデックスを更新
 
 完了後は `⌘ + Space` → 「PCの下の力持ち」 と入力すれば起動できます。
+
+### 初回起動時の警告について
+
+ad-hoc 署名のみで Apple Notarization は通していないので、初回ダブルクリックすると
+「開発元を検証できないため開けません」 と Gatekeeper の警告が出ます。一度だけ
+以下のいずれかで許可すれば、以後はそのまま起動できます:
+
+- **A.** Finder で `~/Applications/PCの下の力持ち.app` を **Control + クリック → 「開く」**
+- **B.** 警告ダイアログを閉じた後に、 **システム設定 > プライバシーとセキュリティ** を開く
+  → 一番下に「"PCの下の力持ち" は開発元が確認できないためブロックされました」
+  → 「このまま開く」をクリック
 
 ## 起動 / 終了
 
