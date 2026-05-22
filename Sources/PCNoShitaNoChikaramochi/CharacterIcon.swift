@@ -77,11 +77,30 @@ struct CharacterIcon: View {
         ctx.fill(legL, with: .color(shortsColor))
         ctx.fill(legR, with: .color(shortsColor))
 
-        // ---- 胴体 (赤シャツ) ----
+        // ---- 胴体 ----
+        // トイレマーク方式: 男性=矩形、女性=A-line ドレスでシルエットから差別化
         let torsoTop = -8.0 + leanY
         let torsoBot = 20.0 + leanY
-        let torso = Path { p in
-            p.addRoundedRect(in: rect(P, x: -14, y: torsoTop, w: 28, h: torsoBot - torsoTop), cornerSize: CGSize(width: 4 * s, height: 4 * s))
+        let torso: Path
+        if appearance.gender == .female {
+            // 台形 (A-line) のドレス: 肩幅は同等、裾が大きく広がる
+            let dressBot = torsoBot + 4
+            torso = Path { p in
+                p.move(to: P(-12, torsoTop + 1))
+                p.addQuadCurve(to: P(-11.5, torsoTop), control: P(-12, torsoTop))
+                p.addLine(to: P(11.5, torsoTop))
+                p.addQuadCurve(to: P(12, torsoTop + 1), control: P(12, torsoTop))
+                p.addLine(to: P(19, dressBot - 1))
+                p.addQuadCurve(to: P(18, dressBot), control: P(19, dressBot))
+                p.addLine(to: P(-18, dressBot))
+                p.addQuadCurve(to: P(-19, dressBot - 1), control: P(-19, dressBot))
+                p.closeSubpath()
+            }
+        } else {
+            torso = Path { p in
+                p.addRoundedRect(in: rect(P, x: -14, y: torsoTop, w: 28, h: torsoBot - torsoTop),
+                                 cornerSize: CGSize(width: 4 * s, height: 4 * s))
+            }
         }
         ctx.fill(torso, with: .color(shirtColor))
 
