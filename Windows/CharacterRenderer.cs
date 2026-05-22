@@ -39,7 +39,7 @@ public static class CharacterRenderer
         // 注: ShirtFill は enum 名と衝突するので、プロパティ名は別にしている
         private Color ShirtFill => AppearanceColors.Shirt(_app.ShirtColor);
         private Color SkinFill => AppearanceColors.Skin(_app.SkinTone);
-        private Color SkinShadeFill => AppearanceColors.SkinShadeFill(_app.SkinTone);
+        private Color SkinShadeFill => AppearanceColors.SkinShade(_app.SkinTone);
         private Color HairFill => AppearanceColors.Hair;
         private Color ShortsFill => AppearanceColors.Shorts;
         private Color BarFill => AppearanceColors.Bar;
