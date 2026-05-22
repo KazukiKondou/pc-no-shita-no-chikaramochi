@@ -79,9 +79,12 @@ final class CharacterAnimator: ObservableObject {
 
     func start() {
         startTime = Date()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+        // .common モードで登録することで、メニュー開いてる間もアニメーションが動く
+        let t = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
     }
 
     func stop() {

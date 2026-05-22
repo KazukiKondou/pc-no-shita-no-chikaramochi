@@ -7,10 +7,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hostingView: NSHostingView<MenuBarCharacterView>?
     private let monitor = MemoryMonitor()
     private let animator = CharacterAnimator()
+    private let appearance = AppearanceStore()
 
     private var usageMenuItem: NSMenuItem?
     private var stateMenuItem: NSMenuItem?
     private var bindTimer: Timer?
+
+    private lazy var settingsController = SettingsWindowController(
+        store: appearance,
+        animator: animator,
+        monitor: monitor
+    )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -20,14 +27,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         setupMenuBar()
 
-        bindTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        // メニュー開いてる間も状態更新が走るよう .common モードで登録
+        let t = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 guard let self else { return }
                 self.animator.update(usage: self.monitor.usage)
                 self.refreshMenu()
             }
         }
-        // 初期反映
+        RunLoop.main.add(t, forMode: .common)
+        bindTimer = t
+
         animator.update(usage: monitor.usage)
         refreshMenu()
     }
@@ -36,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let item = NSStatusBar.system.statusItem(withLength: 34)
         statusItem = item
 
-        let view = MenuBarCharacterView(animator: animator)
+        let view = MenuBarCharacterView(animator: animator, store: appearance)
         let hosting = NSHostingView(rootView: view)
         hosting.frame = NSRect(x: 0, y: 0, width: 34, height: 22)
         hostingView = hosting
@@ -56,6 +66,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(usage)
         menu.addItem(stateItem)
         menu.addItem(NSMenuItem.separator())
+
+        let settingsItem = NSMenuItem(title: "設定...", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         menu.addItem(NSMenuItem(title: "PCの下の力持ちについて", action: #selector(showAbout), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
         let quitItem = NSMenuItem(title: "終了", action: #selector(quit), keyEquivalent: "q")
@@ -72,6 +87,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let totalGB = Double(monitor.totalBytes) / 1_073_741_824.0
         usageMenuItem?.title = String(format: "メモリ: %.1f%% (%.1f / %.1f GB)", usage, usedGB, totalGB)
         stateMenuItem?.title = "状態: \(animator.state.label)"
+    }
+
+    @objc private func showSettings() {
+        settingsController.show()
     }
 
     @objc private func showAbout() {

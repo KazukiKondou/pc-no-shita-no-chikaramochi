@@ -5,6 +5,7 @@ import SwiftUI
 struct CharacterIcon: View {
     let state: CharacterState
     let phase: Double
+    let appearance: AppearanceSnapshot
 
     var body: some View {
         Canvas(rendersAsynchronously: false) { context, size in
@@ -12,12 +13,11 @@ struct CharacterIcon: View {
         }
     }
 
-    // MARK: - Colors
+    // MARK: - Colors (appearance 由来)
 
-    private var shirtColor: Color { Color(red: 0.84, green: 0.16, blue: 0.18) }   // Japan red
-    private var shirtShade: Color { Color(red: 0.62, green: 0.08, blue: 0.12) }
-    private var skinColor: Color { Color(red: 1.0, green: 0.84, blue: 0.66) }
-    private var skinShade: Color { Color(red: 0.78, green: 0.58, blue: 0.42) }
+    private var shirtColor: Color { appearance.shirtColor.primary }
+    private var skinColor: Color { appearance.skinTone.primary }
+    private var skinShade: Color { appearance.skinTone.shade }
     private var hairColor: Color { Color(red: 0.18, green: 0.12, blue: 0.10) }
     private var shortsColor: Color { Color(red: 0.18, green: 0.18, blue: 0.22) }
     private var barColor: Color { Color(red: 0.78, green: 0.78, blue: 0.82) }
@@ -85,9 +85,10 @@ struct CharacterIcon: View {
         }
         ctx.fill(torso, with: .color(shirtColor))
 
-        // 胸の白丸 (日の丸イメージ)
-        let dot = Path(ellipseIn: rect(P, x: -3, y: torsoTop + 7, w: 6, h: 6))
-        ctx.fill(dot, with: .color(.white.opacity(0.92)))
+        // 白シャツ時のみ縁取りを追加して背景に埋もれないようにする
+        if appearance.shirtColor == .white {
+            ctx.stroke(torso, with: .color(.gray.opacity(0.5)), style: StrokeStyle(lineWidth: 0.7 * s))
+        }
 
         // ---- 首 ----
         let neck = Path { p in
@@ -97,18 +98,45 @@ struct CharacterIcon: View {
 
         // ---- 頭 ----
         let headCY = -22.0 + leanY
+
+        // 女性: 頭の後ろに広がるロングヘア (頭と顔の後ろに描く)
+        if appearance.gender == .female {
+            let backHair = Path { p in
+                p.move(to: P(-10, headCY))
+                p.addQuadCurve(to: P(10, headCY), control: P(0, headCY - 14))
+                p.addQuadCurve(to: P(9, 4 + leanY), control: P(15, headCY + 18))
+                p.addLine(to: P(-9, 4 + leanY))
+                p.addQuadCurve(to: P(-10, headCY), control: P(-15, headCY + 18))
+                p.closeSubpath()
+            }
+            ctx.fill(backHair, with: .color(hairColor))
+        }
+
         let head = Path(ellipseIn: rect(P, x: -10, y: headCY - 10, w: 20, h: 20))
         ctx.fill(head, with: .color(skinColor))
 
-        // 髪
-        let hair = Path { p in
-            p.move(to: P(-10, headCY - 5))
-            p.addQuadCurve(to: P(10, headCY - 5), control: P(0, headCY - 13))
-            p.addLine(to: P(8, headCY - 2))
-            p.addQuadCurve(to: P(-8, headCY - 2), control: P(0, headCY - 6))
-            p.closeSubpath()
+        // 前髪 (男性: ふつうの前髪、女性: 真ん中分けっぽく)
+        if appearance.gender == .female {
+            let bangs = Path { p in
+                p.move(to: P(-10, headCY - 5))
+                p.addQuadCurve(to: P(10, headCY - 5), control: P(0, headCY - 13))
+                p.addLine(to: P(7, headCY))
+                p.addQuadCurve(to: P(1, headCY - 4), control: P(4, headCY - 4))
+                p.addQuadCurve(to: P(-1, headCY - 4), control: P(0, headCY - 1))
+                p.addQuadCurve(to: P(-7, headCY), control: P(-4, headCY - 4))
+                p.closeSubpath()
+            }
+            ctx.fill(bangs, with: .color(hairColor))
+        } else {
+            let hair = Path { p in
+                p.move(to: P(-10, headCY - 5))
+                p.addQuadCurve(to: P(10, headCY - 5), control: P(0, headCY - 13))
+                p.addLine(to: P(8, headCY - 2))
+                p.addQuadCurve(to: P(-8, headCY - 2), control: P(0, headCY - 6))
+                p.closeSubpath()
+            }
+            ctx.fill(hair, with: .color(hairColor))
         }
-        ctx.fill(hair, with: .color(hairColor))
 
         // ---- 顔 ----
         drawFace(context: &ctx, P: P, scale: s, headCY: headCY, strain: strain)
@@ -181,6 +209,18 @@ struct CharacterIcon: View {
             p.addRoundedRect(in: rect(P, x: -6, y: 16, w: 28, h: 12), cornerSize: CGSize(width: 4 * s, height: 4 * s))
         }
         ctx.fill(torso, with: .color(shirtColor))
+
+        // 女性: 頭の後ろ (左側) に長い髪が床に広がる様子
+        if appearance.gender == .female {
+            let backHair = Path { p in
+                p.move(to: P(20, 14))
+                p.addQuadCurve(to: P(0, 18), control: P(8, 11))
+                p.addQuadCurve(to: P(2, 27), control: P(-4, 22))
+                p.addLine(to: P(22, 27))
+                p.closeSubpath()
+            }
+            ctx.fill(backHair, with: .color(hairColor))
+        }
 
         // 頭 (右側)
         let head = Path(ellipseIn: rect(P, x: 17, y: 13, w: 18, h: 18))

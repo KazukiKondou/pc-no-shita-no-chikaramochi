@@ -12,9 +12,12 @@ final class MemoryMonitor: ObservableObject {
     func start(interval: TimeInterval = 1.0) {
         totalBytes = ProcessInfo.processInfo.physicalMemory
         sample()
-        timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+        // .common モードで登録することで、メニュー表示中 (eventTracking) でも Timer が止まらない
+        let t = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.sample() }
         }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
     }
 
     func stop() {
