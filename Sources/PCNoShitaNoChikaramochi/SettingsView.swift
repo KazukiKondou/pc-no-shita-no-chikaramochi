@@ -68,7 +68,10 @@ struct SettingsView: View {
                     // シャツの色
                     VStack(alignment: .leading, spacing: 6) {
                         Text("シャツの色").font(.headline)
-                        LazyVGrid(columns: Array(repeating: GridItem(.fixed(40), spacing: 8), count: 8), alignment: .leading, spacing: 8) {
+                        LazyVGrid(
+                            columns: Array(repeating: GridItem(.fixed(40), spacing: 8), count: 8),
+                            alignment: .leading, spacing: 8
+                        ) {
                             ForEach(ShirtColor.allCases) { color in
                                 SwatchButton(
                                     color: color.primary,
@@ -107,8 +110,9 @@ private struct SwatchButton: View {
                 .frame(width: 32, height: 32)
                 .overlay(
                     Circle()
-                        .stroke(selected ? Color.accentColor : Color.gray.opacity(0.35),
-                                lineWidth: selected ? 3 : 1)
+                        .stroke(
+                            selected ? Color.accentColor : Color.gray.opacity(0.35),
+                            lineWidth: selected ? 3 : 1)
                 )
                 .overlay(
                     Image(systemName: "checkmark")

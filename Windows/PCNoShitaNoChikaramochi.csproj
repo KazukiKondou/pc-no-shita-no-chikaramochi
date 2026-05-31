@@ -12,6 +12,11 @@
     <Version>1.0.0</Version>
     <Authors>KazukiKondou</Authors>
     <Product>PCの下の力持ち</Product>
+
+    <!-- Linter / コード解析 (警告どまり。CI ビルドは壊さない) -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

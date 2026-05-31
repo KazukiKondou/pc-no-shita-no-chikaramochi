@@ -1,5 +1,5 @@
-import Foundation
 import Darwin
+import Foundation
 
 @MainActor
 final class MemoryMonitor: ObservableObject {
@@ -10,7 +10,6 @@ final class MemoryMonitor: ObservableObject {
     private var timer: Timer?
 
     func start(interval: TimeInterval = 1.0) {
-        totalBytes = ProcessInfo.processInfo.physicalMemory
         sample()
         // .common モードで登録することで、メニュー表示中 (eventTracking) でも Timer が止まらない
         let t = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
@@ -25,9 +24,15 @@ final class MemoryMonitor: ObservableObject {
         timer = nil
     }
 
-    private func sample() {
+    /// 現在のメモリ状況を 1 回サンプリングする。テストから直接呼べるよう internal。
+    func sample() {
+        if totalBytes == 0 {
+            totalBytes = ProcessInfo.processInfo.physicalMemory
+        }
+
         var stats = vm_statistics64_data_t()
-        var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64_data_t>.stride / MemoryLayout<integer_t>.stride)
+        var count = mach_msg_type_number_t(
+            MemoryLayout<vm_statistics64_data_t>.stride / MemoryLayout<integer_t>.stride)
 
         let result = withUnsafeMutablePointer(to: &stats) {
             $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { ptr in

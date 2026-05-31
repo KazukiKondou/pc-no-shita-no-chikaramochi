@@ -23,11 +23,11 @@ struct CharacterIcon: View {
     private var barColor: Color { Color(red: 0.78, green: 0.78, blue: 0.82) }
     private var plateColor: Color {
         switch state {
-        case .veryEasy, .easy: return Color(red: 0.30, green: 0.65, blue: 0.95) // 軽い (青)
-        case .normal:          return Color(red: 0.40, green: 0.75, blue: 0.40) // 中 (緑)
-        case .heavy:           return Color(red: 0.95, green: 0.55, blue: 0.20) // 重い (橙)
-        case .struggling:      return Color(red: 0.90, green: 0.25, blue: 0.25) // 超重 (赤)
-        case .crushed:         return Color(red: 0.55, green: 0.10, blue: 0.10) // 致死量 (暗赤)
+        case .veryEasy, .easy: return Color(red: 0.30, green: 0.65, blue: 0.95)  // 軽い (青)
+        case .normal: return Color(red: 0.40, green: 0.75, blue: 0.40)  // 中 (緑)
+        case .heavy: return Color(red: 0.95, green: 0.55, blue: 0.20)  // 重い (橙)
+        case .struggling: return Color(red: 0.90, green: 0.25, blue: 0.25)  // 超重 (赤)
+        case .crushed: return Color(red: 0.55, green: 0.10, blue: 0.10)  // 致死量 (暗赤)
         }
     }
 
@@ -48,7 +48,8 @@ struct CharacterIcon: View {
         case .struggling:
             paintLifter(context: context, scale: s, P: P, armPhase: 0.45, leanY: 6, strain: true)
         case .heavy:
-            paintLifter(context: context, scale: s, P: P, armPhase: phase * 0.9 + 0.05, leanY: 3, strain: true)
+            paintLifter(
+                context: context, scale: s, P: P, armPhase: phase * 0.9 + 0.05, leanY: 3, strain: true)
         default:
             paintLifter(context: context, scale: s, P: P, armPhase: phase, leanY: 0, strain: false)
         }
@@ -56,12 +57,14 @@ struct CharacterIcon: View {
 
     // MARK: - Standing lifter
 
-    private func paintLifter(context: GraphicsContext,
-                             scale s: CGFloat,
-                             P: (Double, Double) -> CGPoint,
-                             armPhase t: Double,
-                             leanY: Double,
-                             strain: Bool) {
+    private func paintLifter(
+        context: GraphicsContext,
+        scale s: CGFloat,
+        P: (Double, Double) -> CGPoint,
+        armPhase t: Double,
+        leanY: Double,
+        strain: Bool
+    ) {
         var ctx = context
 
         // ---- 脚 ----
@@ -69,10 +72,14 @@ struct CharacterIcon: View {
         let legTop = 18.0 + leanY
         let legBot = 42.0 + leanY
         let legL = Path { p in
-            p.addRoundedRect(in: rect(P, x: -8, y: legTop, w: legW, h: legBot - legTop), cornerSize: CGSize(width: 3 * s, height: 3 * s))
+            p.addRoundedRect(
+                in: rect(P, x: -8, y: legTop, w: legW, h: legBot - legTop),
+                cornerSize: CGSize(width: 3 * s, height: 3 * s))
         }
         let legR = Path { p in
-            p.addRoundedRect(in: rect(P, x: 8 - legW, y: legTop, w: legW, h: legBot - legTop), cornerSize: CGSize(width: 3 * s, height: 3 * s))
+            p.addRoundedRect(
+                in: rect(P, x: 8 - legW, y: legTop, w: legW, h: legBot - legTop),
+                cornerSize: CGSize(width: 3 * s, height: 3 * s))
         }
         ctx.fill(legL, with: .color(shortsColor))
         ctx.fill(legR, with: .color(shortsColor))
@@ -98,8 +105,9 @@ struct CharacterIcon: View {
             }
         } else {
             torso = Path { p in
-                p.addRoundedRect(in: rect(P, x: -14, y: torsoTop, w: 28, h: torsoBot - torsoTop),
-                                 cornerSize: CGSize(width: 4 * s, height: 4 * s))
+                p.addRoundedRect(
+                    in: rect(P, x: -14, y: torsoTop, w: 28, h: torsoBot - torsoTop),
+                    cornerSize: CGSize(width: 4 * s, height: 4 * s))
             }
         }
         ctx.fill(torso, with: .color(shirtColor))
@@ -169,7 +177,7 @@ struct CharacterIcon: View {
 
         // 手位置: tに応じて下→上に動く
         let handDownY = 14.0 + leanY
-        let handUpY = headCY - 22.0   // 頭の上
+        let handUpY = headCY - 22.0  // 頭の上
         let handY = handDownY + (handUpY - handDownY) * t
 
         let handXSpread = 16.0 + (1.0 - t) * 6.0
@@ -186,7 +194,8 @@ struct CharacterIcon: View {
         var rightArm = Path()
         rightArm.move(to: rightShoulder)
         rightArm.addLine(to: rightHand)
-        ctx.stroke(rightArm, with: .color(skinColor), style: StrokeStyle(lineWidth: armWidth, lineCap: .round))
+        ctx.stroke(
+            rightArm, with: .color(skinColor), style: StrokeStyle(lineWidth: armWidth, lineCap: .round))
 
         // ---- ウェイト描画 ----
         switch liftKind {
@@ -205,9 +214,11 @@ struct CharacterIcon: View {
 
     // MARK: - Crushed (倒れて踏み潰されてる)
 
-    private func paintCrushed(context: GraphicsContext,
-                              scale s: CGFloat,
-                              P: (Double, Double) -> CGPoint) {
+    private func paintCrushed(
+        context: GraphicsContext,
+        scale s: CGFloat,
+        P: (Double, Double) -> CGPoint
+    ) {
         var ctx = context
 
         // 地面ライン (床)
@@ -219,13 +230,15 @@ struct CharacterIcon: View {
         // 横たわった身体 (右向き)
         // 脚
         let legs = Path { p in
-            p.addRoundedRect(in: rect(P, x: -22, y: 28, w: 30, h: 8), cornerSize: CGSize(width: 4 * s, height: 4 * s))
+            p.addRoundedRect(
+                in: rect(P, x: -22, y: 28, w: 30, h: 8), cornerSize: CGSize(width: 4 * s, height: 4 * s))
         }
         ctx.fill(legs, with: .color(shortsColor))
 
         // 胴体 (赤シャツ、横倒し)
         let torso = Path { p in
-            p.addRoundedRect(in: rect(P, x: -6, y: 16, w: 28, h: 12), cornerSize: CGSize(width: 4 * s, height: 4 * s))
+            p.addRoundedRect(
+                in: rect(P, x: -6, y: 16, w: 28, h: 12), cornerSize: CGSize(width: 4 * s, height: 4 * s))
         }
         ctx.fill(torso, with: .color(shirtColor))
 
@@ -269,7 +282,8 @@ struct CharacterIcon: View {
 
         // 舌出し
         let tongue = Path { p in
-            p.addRoundedRect(in: rect(P, x: 23, y: 25, w: 4, h: 3), cornerSize: CGSize(width: 1.5 * s, height: 1.5 * s))
+            p.addRoundedRect(
+                in: rect(P, x: 23, y: 25, w: 4, h: 3), cornerSize: CGSize(width: 1.5 * s, height: 1.5 * s))
         }
         ctx.fill(tongue, with: .color(Color(red: 0.95, green: 0.45, blue: 0.55)))
 
@@ -303,11 +317,13 @@ struct CharacterIcon: View {
 
     // MARK: - Sub helpers
 
-    private func drawFace(context: inout GraphicsContext,
-                          P: (Double, Double) -> CGPoint,
-                          scale s: CGFloat,
-                          headCY: Double,
-                          strain: Bool) {
+    private func drawFace(
+        context: inout GraphicsContext,
+        P: (Double, Double) -> CGPoint,
+        scale s: CGFloat,
+        headCY: Double,
+        strain: Bool
+    ) {
         // 目
         let eyeY = headCY - 1.0
         let eyeOffsetX = 3.5
@@ -318,21 +334,26 @@ struct CharacterIcon: View {
             for sign in [-1.0, 1.0] {
                 var eye = Path()
                 eye.move(to: P(sign * eyeOffsetX - 2, eyeY + 1))
-                eye.addQuadCurve(to: P(sign * eyeOffsetX + 2, eyeY + 1), control: P(sign * eyeOffsetX, eyeY - 2))
-                context.stroke(eye, with: .color(.black), style: StrokeStyle(lineWidth: 1.3 * s, lineCap: .round))
+                eye.addQuadCurve(
+                    to: P(sign * eyeOffsetX + 2, eyeY + 1), control: P(sign * eyeOffsetX, eyeY - 2))
+                context.stroke(
+                    eye, with: .color(.black), style: StrokeStyle(lineWidth: 1.3 * s, lineCap: .round))
             }
         } else if strain {
             // しかめ目 >_<
             for sign in [-1.0, 1.0] {
                 var eye = Path()
                 eye.move(to: P(sign * eyeOffsetX - 2, eyeY - 1))
-                eye.addQuadCurve(to: P(sign * eyeOffsetX + 2, eyeY - 1), control: P(sign * eyeOffsetX, eyeY + 2))
-                context.stroke(eye, with: .color(.black), style: StrokeStyle(lineWidth: 1.4 * s, lineCap: .round))
+                eye.addQuadCurve(
+                    to: P(sign * eyeOffsetX + 2, eyeY - 1), control: P(sign * eyeOffsetX, eyeY + 2))
+                context.stroke(
+                    eye, with: .color(.black), style: StrokeStyle(lineWidth: 1.4 * s, lineCap: .round))
             }
         } else {
             // 普通の点目
             for sign in [-1.0, 1.0] {
-                let eye = Path(ellipseIn: rect(P, x: sign * eyeOffsetX - eyeR, y: eyeY - eyeR, w: eyeR * 2, h: eyeR * 2))
+                let eye = Path(
+                    ellipseIn: rect(P, x: sign * eyeOffsetX - eyeR, y: eyeY - eyeR, w: eyeR * 2, h: eyeR * 2))
                 context.fill(eye, with: .color(.black))
             }
         }
@@ -345,19 +366,24 @@ struct CharacterIcon: View {
             var mouth = Path()
             mouth.move(to: P(-3, mouthY))
             mouth.addQuadCurve(to: P(3, mouthY), control: P(0, mouthY + 2.5))
-            context.stroke(mouth, with: .color(.black), style: StrokeStyle(lineWidth: 1.2 * s, lineCap: .round))
+            context.stroke(
+                mouth, with: .color(.black), style: StrokeStyle(lineWidth: 1.2 * s, lineCap: .round))
         case .normal:
             // 普通の一文字
             var mouth = Path()
             mouth.move(to: P(-2, mouthY))
             mouth.addLine(to: P(2, mouthY))
-            context.stroke(mouth, with: .color(.black), style: StrokeStyle(lineWidth: 1.2 * s, lineCap: .round))
+            context.stroke(
+                mouth, with: .color(.black), style: StrokeStyle(lineWidth: 1.2 * s, lineCap: .round))
         case .heavy:
             // 食いしばり (歯)
             let m = rect(P, x: -3, y: mouthY - 1, w: 6, h: 2.5)
-            context.fill(Path(roundedRect: m, cornerSize: CGSize(width: 0.5 * s, height: 0.5 * s)), with: .color(.white))
-            context.stroke(Path(roundedRect: m, cornerSize: CGSize(width: 0.5 * s, height: 0.5 * s)),
-                           with: .color(.black), style: StrokeStyle(lineWidth: 0.8 * s))
+            context.fill(
+                Path(roundedRect: m, cornerSize: CGSize(width: 0.5 * s, height: 0.5 * s)),
+                with: .color(.white))
+            context.stroke(
+                Path(roundedRect: m, cornerSize: CGSize(width: 0.5 * s, height: 0.5 * s)),
+                with: .color(.black), style: StrokeStyle(lineWidth: 0.8 * s))
             var mid = Path()
             mid.move(to: P(0, mouthY - 1))
             mid.addLine(to: P(0, mouthY + 1.5))
@@ -365,8 +391,9 @@ struct CharacterIcon: View {
         case .struggling:
             // 大きく開いた口 (うわー)
             let m = rect(P, x: -3, y: mouthY - 1, w: 6, h: 4)
-            context.fill(Path(roundedRect: m, cornerSize: CGSize(width: 1.5 * s, height: 1.5 * s)),
-                         with: .color(Color(red: 0.45, green: 0.10, blue: 0.10)))
+            context.fill(
+                Path(roundedRect: m, cornerSize: CGSize(width: 1.5 * s, height: 1.5 * s)),
+                with: .color(Color(red: 0.45, green: 0.10, blue: 0.10)))
         case .crushed:
             break
         }
@@ -392,31 +419,38 @@ struct CharacterIcon: View {
         }
     }
 
-    private func drawDumbbell(context: inout GraphicsContext,
-                              P: (Double, Double) -> CGPoint,
-                              at hand: CGPoint,
-                              scale s: CGFloat) {
+    private func drawDumbbell(
+        context: inout GraphicsContext,
+        P: (Double, Double) -> CGPoint,
+        at hand: CGPoint,
+        scale s: CGFloat
+    ) {
         // ハンドル
         let handleW = 12.0 * s
         let handleH = 2.5 * s
         let handle = CGRect(x: hand.x - handleW / 2, y: hand.y - handleH / 2, width: handleW, height: handleH)
-        context.fill(Path(roundedRect: handle, cornerSize: CGSize(width: 1 * s, height: 1 * s)), with: .color(barColor))
+        context.fill(
+            Path(roundedRect: handle, cornerSize: CGSize(width: 1 * s, height: 1 * s)), with: .color(barColor)
+        )
 
         // 両端の重り
         for offset in [-7.0 * s, 7.0 * s] {
             let wW = 4.0 * s
             let wH = 8.0 * s
             let weight = CGRect(x: hand.x + offset - wW / 2, y: hand.y - wH / 2, width: wW, height: wH)
-            context.fill(Path(roundedRect: weight, cornerSize: CGSize(width: 1.2 * s, height: 1.2 * s)),
-                         with: .color(plateColor))
+            context.fill(
+                Path(roundedRect: weight, cornerSize: CGSize(width: 1.2 * s, height: 1.2 * s)),
+                with: .color(plateColor))
         }
     }
 
-    private func drawBarbell(context: inout GraphicsContext,
-                             leftHand: CGPoint,
-                             rightHand: CGPoint,
-                             scale s: CGFloat,
-                             strain: Bool) {
+    private func drawBarbell(
+        context: inout GraphicsContext,
+        leftHand: CGPoint,
+        rightHand: CGPoint,
+        scale s: CGFloat,
+        strain: Bool
+    ) {
         // バー (両手を結ぶ + 外側に伸びる)
         let extend = 12.0 * s
         let dx = rightHand.x - leftHand.x
@@ -436,21 +470,27 @@ struct CharacterIcon: View {
         let plateW: Double = 5.5
         let plateH: Double = strain ? 22.0 : 18.0
 
-        drawPlateRotated(context: &context, center: barLeft, perpUx: -uy, perpUy: ux, w: plateW, h: plateH, scale: s)
-        drawPlateRotated(context: &context, center: barRight, perpUx: -uy, perpUy: ux, w: plateW, h: plateH, scale: s)
+        drawPlateRotated(
+            context: &context, center: barLeft, perpUx: -uy, perpUy: ux, w: plateW, h: plateH, scale: s)
+        drawPlateRotated(
+            context: &context, center: barRight, perpUx: -uy, perpUy: ux, w: plateW, h: plateH, scale: s)
 
         // 内側に小プレート (1枚追加)
         let innerL = CGPoint(x: barLeft.x + ux * 4 * s, y: barLeft.y + uy * 4 * s)
         let innerR = CGPoint(x: barRight.x - ux * 4 * s, y: barRight.y - uy * 4 * s)
-        drawPlateRotated(context: &context, center: innerL, perpUx: -uy, perpUy: ux, w: 3.0, h: plateH * 0.6, scale: s)
-        drawPlateRotated(context: &context, center: innerR, perpUx: -uy, perpUy: ux, w: 3.0, h: plateH * 0.6, scale: s)
+        drawPlateRotated(
+            context: &context, center: innerL, perpUx: -uy, perpUy: ux, w: 3.0, h: plateH * 0.6, scale: s)
+        drawPlateRotated(
+            context: &context, center: innerR, perpUx: -uy, perpUy: ux, w: 3.0, h: plateH * 0.6, scale: s)
     }
 
-    private func drawPlateRotated(context: inout GraphicsContext,
-                                  center: CGPoint,
-                                  perpUx: CGFloat, perpUy: CGFloat,
-                                  w: Double, h: Double,
-                                  scale s: CGFloat) {
+    private func drawPlateRotated(
+        context: inout GraphicsContext,
+        center: CGPoint,
+        perpUx: CGFloat, perpUy: CGFloat,
+        w: Double, h: Double,
+        scale s: CGFloat
+    ) {
         // バーに垂直な向きの楕円を描く
         let plateW = w * s
         let plateH = h * s
@@ -458,21 +498,27 @@ struct CharacterIcon: View {
         // 簡略化のため、垂直方向に近い場合は普通の楕円で描く
         let rect = CGRect(x: center.x - plateW / 2, y: center.y - plateH / 2, width: plateW, height: plateH)
         context.fill(Path(ellipseIn: rect), with: .color(plateColor))
-        context.stroke(Path(ellipseIn: rect), with: .color(.black.opacity(0.4)), style: StrokeStyle(lineWidth: 0.6 * s))
+        context.stroke(
+            Path(ellipseIn: rect), with: .color(.black.opacity(0.4)), style: StrokeStyle(lineWidth: 0.6 * s))
     }
 
-    private func drawPlate(context: inout GraphicsContext,
-                           P: (Double, Double) -> CGPoint,
-                           x: Double, y: Double, w: Double, h: Double) {
+    private func drawPlate(
+        context: inout GraphicsContext,
+        P: (Double, Double) -> CGPoint,
+        x: Double, y: Double, w: Double, h: Double
+    ) {
         let r = rect(P, x: x - w / 2, y: y - h / 2, w: w, h: h)
         context.fill(Path(ellipseIn: r), with: .color(plateColor))
-        context.stroke(Path(ellipseIn: r), with: .color(.black.opacity(0.4)), style: StrokeStyle(lineWidth: 0.6))
+        context.stroke(
+            Path(ellipseIn: r), with: .color(.black.opacity(0.4)), style: StrokeStyle(lineWidth: 0.6))
     }
 
-    private func drawSweat(context: inout GraphicsContext,
-                           P: (Double, Double) -> CGPoint,
-                           scale s: CGFloat,
-                           headCY: Double) {
+    private func drawSweat(
+        context: inout GraphicsContext,
+        P: (Double, Double) -> CGPoint,
+        scale s: CGFloat,
+        headCY: Double
+    ) {
         // 右こめかみの汗
         var sweat = Path()
         let sx = 10.5
@@ -484,11 +530,13 @@ struct CharacterIcon: View {
         context.fill(sweat, with: .color(Color(red: 0.40, green: 0.75, blue: 0.95)))
     }
 
-    private func rect(_ P: (Double, Double) -> CGPoint, x: Double, y: Double, w: Double, h: Double) -> CGRect {
+    private func rect(_ P: (Double, Double) -> CGPoint, x: Double, y: Double, w: Double, h: Double) -> CGRect
+    {
         let topLeft = P(x, y)
         let bottomRight = P(x + w, y + h)
-        return CGRect(x: topLeft.x, y: topLeft.y,
-                      width: bottomRight.x - topLeft.x,
-                      height: bottomRight.y - topLeft.y)
+        return CGRect(
+            x: topLeft.x, y: topLeft.y,
+            width: bottomRight.x - topLeft.x,
+            height: bottomRight.y - topLeft.y)
     }
 }

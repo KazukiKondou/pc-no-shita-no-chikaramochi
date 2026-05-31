@@ -97,9 +97,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let alert = NSAlert()
         alert.messageText = "PCの下の力持ち"
         alert.informativeText = """
-        メモリの使用率に応じて、キャラがダンベルやバーベルを上げ下げします。
-        メニューバーで PC を支えてくれる小さな力持ちです。
-        """
+            メモリの使用率に応じて、キャラがダンベルやバーベルを上げ下げします。
+            メニューバーで PC を支えてくれる小さな力持ちです。
+            """
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()

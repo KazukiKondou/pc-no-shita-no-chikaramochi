@@ -25,11 +25,13 @@ public class AppearanceStore
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public static AppearanceStore Load()
+    public static AppearanceStore Load() => Load(SettingsPath());
+
+    /// <summary>指定パスから読み込む。読めない/壊れている場合はデフォルトを返す。</summary>
+    public static AppearanceStore Load(string path)
     {
         try
         {
-            var path = SettingsPath();
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
@@ -44,11 +46,13 @@ public class AppearanceStore
         return new AppearanceStore();
     }
 
-    public void Save()
+    public void Save() => Save(SettingsPath());
+
+    /// <summary>指定パスへ保存する。失敗してもアプリは続行する。</summary>
+    public void Save(string path)
     {
         try
         {
-            var path = SettingsPath();
             var json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(path, json);
         }
